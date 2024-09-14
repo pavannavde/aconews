@@ -3,10 +3,12 @@ import Header from "../Components/Header";
 import axios from "axios";
 import NewsCard from "../Components/NewsCard";
 import SearchBar from "../Components/SearchBar";
+import Loader from "../Components/Loader";
 
 const NewsPage = () => {
   const ApiKey = "b6385ac20f406b778dc178823b7b8926";
   const [newsData, setNewsData] = useState([]);
+  const [isLoading,setIsLoading] =useState(true)
   const[country, setCountry] = useState('in');
   const[langauge,setLangauge] = useState('en')
 
@@ -17,6 +19,7 @@ const NewsPage = () => {
       );
       console.log(data.data.articles);
       setNewsData(data.data.articles);
+      setIsLoading(false);
     } catch (err) {
       console.log(err);
     }
@@ -24,15 +27,18 @@ const NewsPage = () => {
 
   async function handleSearch(search) {
     try {
+      setIsLoading(true)
       const searchResult = await axios.get(
         `https://gnews.io/api/v4/search?q=${search}&lang=${langauge}&country=${country}&max=15&apikey=${ApiKey}`
       );
       console.log(searchResult);
-      setNewsData(searchResult.data.articles)
+      setNewsData(searchResult.data.articles);
+      setIsLoading(false)
     } catch (error) {
       console.log(error);
     }
   }
+
   useEffect(() => {
     getData();
   }, []);
@@ -65,7 +71,7 @@ const NewsPage = () => {
       </div>
       <h1>Top Headlines</h1>
       <div className="container">
-        {newsData &&
+        {isLoading ? (<Loader/>) :
           newsData.map((news) => {
             return <NewsCard news={news} />;
           })}
